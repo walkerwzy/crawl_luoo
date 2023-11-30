@@ -70,11 +70,13 @@ async function crawlPage(browser, vol, data) {
     const musics = await page.evaluate(() => {
         return eval('window.player.music')
     });
-    musics.forEach( m => {
+    musics.forEach( (m, i) => {
         if (covername.length == 0) covername = m.cover;
+        const title = m.name.replace(/^\d{1,2}\./, '').trim()
+        if (title.length == 0) musics.splice(i, 1) // 如果歌名为空，就移除这一项
         delete m.src;
         delete m.cover;
-        m.name = m.name.replace(/\d{1,2}\./, '')
+        m.name = title
     })
 
     const title = await page.$eval('h3', el => el.textContent)
@@ -124,7 +126,7 @@ const pureHtml = (source) => {
     let to = Math.min((parseInt(args[1], 10) || from), max)
     console.log("crawing from: %d to %d", from ,to)
 
-    const db = "data.json";
+    const db = "output/data.json";
     try {
         await fs.promises.access(db, fs.constants.R_OK | fs.constants.W_OK);
     } catch {
