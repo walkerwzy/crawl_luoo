@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/walkerwzy/crawl_luoo#readme", 
   "dependencies": {
-    "puppeteer": "*"
+    "puppeteer": "*", 
+    "cheerio": "*"
   }
 }
