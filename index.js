@@ -80,7 +80,7 @@ async function crawlPage(browser, vol, data) {
     })
 
     const title = await page.$eval('h3', el => el.textContent)
-    const cover = `https://luoow.wxwenku.com/${covername}`;
+    const cover = `https://luoow.wxwenku.com${covername}`;
     const desc = await page.$eval('div.vol-desc', el => el.innerHTML)
 
     // console.log("titie: %s", title);
