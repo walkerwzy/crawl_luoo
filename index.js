@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer"
 import * as fs from "fs"
 import path from "path"
-;
+    ;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function crawlImage(browser, url, fileName) {
@@ -14,7 +14,7 @@ async function crawlImage(browser, url, fileName) {
             const page = await browser.newPage();
             const response = await page.goto(url);
             const imageBuffer = await response.buffer();
-            await fs.promises.writeFile(location, imageBuffer)   
+            await fs.promises.writeFile(location, imageBuffer)
             retry = 100 // 退出
         } catch {
             retry++
@@ -70,7 +70,7 @@ async function crawlPage(browser, vol, data) {
     const musics = await page.evaluate(() => {
         return eval('window.player.music')
     });
-    musics.forEach( (m, i) => {
+    musics.forEach((m, i) => {
         if (covername.length == 0) covername = m.cover;
         const title = m.name.replace(/^\d{1,2}\./, '').trim()
         if (title.length == 0) musics.splice(i, 1) // 如果歌名为空，就移除这一项
@@ -82,7 +82,7 @@ async function crawlPage(browser, vol, data) {
     const title = await page.$eval('h3', el => el.textContent)
     const cover = `https://luoow.wxwenku.com/${covername}`;
     const desc = await page.$eval('div.vol-desc', el => el.innerHTML)
-    
+
     // console.log("titie: %s", title);
     // console.log(cover)
     // console.log("desc: %s", pureHtml(desc))
@@ -97,7 +97,7 @@ async function crawlPage(browser, vol, data) {
     data[volumn] = info
     console.log(info)
 
-    
+
     const fileName = covername.replace(/\//, '').replace(/\//g, '_')
     await crawlImage(browser, cover, fileName)
 
@@ -106,42 +106,30 @@ async function crawlPage(browser, vol, data) {
 
 const pureHtml = (source) => {
     return source.replace(/<\/p>|<br>/ig, "\n")
-    .replace(/\n+/g, '\n')
-    .replace(/<.*?>/ig, '')
-    .trim()
-    .replace(/\n+/g, '\n')
+        .replace(/\n+/g, '\n')
+        .replace(/<.*?>/ig, '')
+        .trim()
+        .replace(/\n+/g, '\n')
 }
 
-(async()=> {
-    // debug
-    // const browser1 = await puppeteer.launch({headless: "new"});
-    // await crawlPage(browser1, 498, {})
-    // await browser1.close()
-    // return;
-
-
-    const max = 999
-    const args = process.argv.slice(2)
-    let from = Math.min(parseInt(args[0], 10) || 1, max)
-    let to = Math.min((parseInt(args[1], 10) || from), max)
-    console.log("crawing from: %d to %d", from ,to)
-
-    const db = "output/data.json";
+const walk = async () => {
     try {
-        await fs.promises.access(db, fs.constants.R_OK | fs.constants.W_OK);
-    } catch {
-        await fs.promises.writeFile(db, '{}');
+        const files = await fs.promises.readdir("output")
+        return files
+    } catch (error) {
+        console.error(error)
+        return []
     }
-    const text = await fs.promises.readFile(db, {encoding: 'utf-8'})
-    const data = JSON.parse(text)
-    const browser = await puppeteer.launch({headless: "new"});
+}
+
+const do_crawl = async (from, to, browser, data, db) => {
     let retry = 0
     while (from <= to) {
         const vol = `vol_${from}`
-        if (vol in data) {
-            from++
-            continue;
-        }
+        // if (vol in data) {
+        //     from++
+        //     continue;
+        // }
         try {
             await crawlPage(browser, from, data)
             await fs.promises.writeFile(db, JSON.stringify(data))
@@ -158,5 +146,46 @@ const pureHtml = (source) => {
             }
         }
     }
+}
+
+(async () => {
+    // debug
+    // const browser1 = await puppeteer.launch({headless: "new"});
+    // await crawlPage(browser1, 498, {})
+    // await browser1.close()
+    // return;
+
+
+    const db = "output/data.json";
+    try {
+        await fs.promises.access(db, fs.constants.R_OK | fs.constants.W_OK);
+    } catch {
+        await fs.promises.writeFile(db, '{}');
+    }
+    const text = await fs.promises.readFile(db, { encoding: 'utf-8' })
+    const data = JSON.parse(text)
+    const browser = await puppeteer.launch({ headless: "new" });
+    const args = process.argv.slice(2)
+
+    // 扫描1-999里所有没有图片的期数
+    if (args[0] == 'fill') {
+        let files = await walk();
+        // let missing = []
+        for (let index = 1; index < 1000; index++) {
+            const file = `${index}_cover.jpg`
+            if (!files.some(m=> m == file))
+            // missing.push(index)
+            console.log("crawing:", index)
+            await do_crawl(index, index, browser, data, db)
+        }
+        return
+    }
+
+    // 根据参数扫描
+    const max = 999
+    const from = Math.min(parseInt(args[0], 10) || 1, max)
+    const to = Math.min((parseInt(args[1], 10) || from), max)
+    console.log("crawing from: %d to %d", from, to)
+    await do_crawl(from, to, browser, data, db)
     await browser.close()
 })()
