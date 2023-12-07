@@ -61,6 +61,11 @@ async function crawlPage(browser, vol, data) {
         else req.continue();
     });
     const response = await page.goto(url);
+    if (response.status() == 404) {
+        console.log(vol, 'is missing')
+        return;
+    }
+    
     // await page.waitForNetworkIdle();
     const source = await response.text(); // 直接返回的page
     const html = await page.content(); // 渲染后的page
