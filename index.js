@@ -173,10 +173,11 @@ const do_crawl = async (from, to, browser, data, db) => {
         // let missing = []
         for (let index = 1; index < 1000; index++) {
             const file = `${index}_cover.jpg`
-            if (!files.some(m=> m == file))
-            // missing.push(index)
-            console.log("crawing:", index)
-            await do_crawl(index, index, browser, data, db)
+            if (!files.some(m=> m == file)) {
+                // missing.push(index)
+                console.log("crawing:", index)
+                await do_crawl(index, index, browser, data, db)
+            }
         }
         return
     }
