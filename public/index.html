@@ -31,7 +31,6 @@
         <a href="/" class="btn btn-primary">Home</a>
         <button class="btn btn-default" id="obtain-new-token">Refresh token</button>
         <button class="btn btn-default" id="btn_create_playlist">Create Playlist</button>
-        <button class="btn btn-default" id="btn_fill_playlist">Fill Playlist</button>
         <div id="playlist">
         </div>
       </div>
@@ -177,23 +176,19 @@
 
           $("#btn_create_playlist").on('click', () => {
             var p = prompt("from, to?").split(/\s|,/);
-            if (p.length != 2) return alert("请输入两个数字")
-            var from = parseInt(p[0], 10);
-            var to = parseInt(p[1], 10);
-            if (to < from) return alert("to need greater or equal to from");
+            var from = parseInt(p[0], 10) || 1;
+            var to = parseInt(p[1], 10) || from;
+            if (to < from) to = from;
             $.ajax({
               url: `/playlist/create/${user_id}/${from}/${to}`,
               headers: {
                 'Authorization': 'Bearer ' + access_token
               },
               success: response => {
+                console.log('done')
                 location.href = location.href;
               }
             });
-          });
-
-          $("#btn_fill_playlist").on('click', () => {
-
           });
         }
       })();

@@ -17,7 +17,7 @@ const __dirname = dirname(__filename);
 var client_id = '574961985a664031a4d935d187430793'; // your clientId
 var client_secret = '35306bd544d34ec4840574956d9b402d'; // Your secret
 var redirect_uri = 'http://localhost:3333/callback'; // Your redirect uri
-
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const generateRandomString = (length) => {
   return crypto
@@ -50,9 +50,7 @@ app.get('/login', function(req, res) {
 // your application requests authorization
 
   // https://developer.spotify.com/documentation/web-api/concepts/scopes
-  // playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public  
-  // var scope = 'user-read-private user-read-email user-library-read playlist-modify-public';
-  var scope = 'user-read-private playlist-read-private playlist-modify-public playlist-modify-private';
+  var scope = 'user-read-private playlist-read-private playlist-modify-public playlist-modify-private ugc-image-upload';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -134,10 +132,14 @@ app.get('/playlist/create/:uid/:from/:to', async (req, res) => {
   console.log("token:", token)
   var from = req.params.from, to = req.params.to, user_id = req.params.uid;
   var list = await client.get_db(from ,to);
-  Promise.all(list.map(async m => {
-    await client.create_playlist(m.title, m.desc, token);
-  }));
-  res.status(200)
+  for (const vol of list) {
+    await client.create_playlist(vol, user_id, token);
+    await sleep(2000);
+  }
+  // await Promise.all(list.map(async m => {
+  //   await client.create_playlist(m, user_id, token);
+  // }));
+  res.send("ok")
 });
 
 app.get('/refresh_token', function(req, res) {
@@ -170,38 +172,6 @@ app.get('/refresh_token', function(req, res) {
   });
 });
 
-const playlist = async (token) => {
-
-  try {
-    await fs.promises.access(db, fs.constants.R_OK | fs.constants.W_OK);
-    const text = await fs.promises.readFile(db, {encoding: 'utf-8'})
-    const data = JSON.parse(text)
-
-    // for (const key in data) {
-    //   if (Object.hasOwnProperty.call(data, key)) {
-    //     const vol = data[key];
-    //     const playlist = await create_playlist(vol.title, vol.desc)
-    //   }
-    // }
-    const titles = Object.keys(data).slice(0,3);
-    // for (let index = 0; index < titles.length; index++) {
-    //   const key = titles[index];
-    //   if (Object.hasOwnProperty.call(data, key)) {
-    //     const vol = data[key];
-    //     const playlist = await create_playlist(vol.title, vol.desc)
-    //   }
-    // }
-    Promise.all(titles.map(async key => {
-      if (Object.hasOwnProperty.call(data, key)) {
-        const vol = data[key];
-        const playlist = await create_playlist(vol.title, vol.desc)
-      }
-    }));
-    
-} catch {
-    
-}
-}
 
 console.log('Listening on 3333');
 app.listen(3333);

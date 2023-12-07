@@ -2,10 +2,10 @@
   "name": "crawl_luoo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
-    "run": "node index.js"
+    "run": "node app.js"
   },
   "repository": {
     "type": "git",
