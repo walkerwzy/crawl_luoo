@@ -266,8 +266,8 @@ export const change_playlist = async (token) => {
   } catch { }
 }
 
-export const cover_playlist = async (token) => {
-    let response = await fetch(`https://api.spotify.com/v1/users/${user_id}/playlists?limit=50&offset=0`, {
+export const cover_playlist = async (token, offset = 0) => {
+    let response = await fetch(`https://api.spotify.com/v1/users/${user_id}/playlists?limit=50&offset=${offset}`, {
       method: "GET",
       headers: {
         'Authorization': `Bearer ${token}`
@@ -307,5 +307,11 @@ export const cover_playlist = async (token) => {
 }
 
 (async () => {
-  await cover_playlist('BQAaqv6N99YH2dixm8XpEI5jcXyn5N3Z5v1LLO-hZubM6sSXMNAPVV_FYpQ-HAFX606eqT-9YY2tQXahCVtFmE5_JOUzygbhRiuXuHWkpIGFDnV_3z_iz98c7jIHlE3mtbfD26C21aBE0L3-Wt7yO4M4Q-a_dP9PsiKTgpsx72tYC9_Nv8RP7eFQsJqMAdJqElnK-EpO-3QX48hM86tyrolKYWWeTxxW1AaOT8vmjlCQWj9VRgGyyvY4yBoa9PBwljeuqF1-iS3ydeW2sSI')
+  const t = 'BQDhwxSF6e7MUn7mOPxvZafj0vPkkBPKe7ee8Xh-BPCU9eMLnNyIRs1ZSVRsW0HPJEFY7BKTwwdV89VkSS-UiAUzFRjk8mtKvPmqonKzNsB6XhDe6_H-Q3AiNvNNfcxfFYx3pu0iI3z9tY6VWK8jz94HP-x_g-yjpREmGrsWsUHiQCxxYdFt9cXyhHfpkv7lqhbQuoeXccJeWcYREyFCKjHLzqzFOrrkOLhCXgjLyb8l23_QXl6VPzZ0zm6uAqtEUPm_aEEE3V3scccTt-I';
+  let offset = 500;
+    while (offset < 1100) {
+        console.log('offset:', offset)
+        await cover_playlist(t, offset)
+        offset += 50
+    }
 })()
