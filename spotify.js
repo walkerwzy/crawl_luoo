@@ -27,8 +27,8 @@ import * as fs from "fs"
   ;
 import path from "path";
 
-const client_id = "574961985a664031a4d935d187430793";
-const client_secret = "35306bd544d34ec4840574956d9b402d";
+const client_id = "";
+const client_secret = "";
 const user_id = "122868332"
 // const env = "spotify.env";
 const db = "output/data.json"
@@ -307,11 +307,11 @@ export const cover_playlist = async (token, offset = 0) => {
 }
 
 (async () => {
-  const t = 'BQDhwxSF6e7MUn7mOPxvZafj0vPkkBPKe7ee8Xh-BPCU9eMLnNyIRs1ZSVRsW0HPJEFY7BKTwwdV89VkSS-UiAUzFRjk8mtKvPmqonKzNsB6XhDe6_H-Q3AiNvNNfcxfFYx3pu0iI3z9tY6VWK8jz94HP-x_g-yjpREmGrsWsUHiQCxxYdFt9cXyhHfpkv7lqhbQuoeXccJeWcYREyFCKjHLzqzFOrrkOLhCXgjLyb8l23_QXl6VPzZ0zm6uAqtEUPm_aEEE3V3scccTt-I';
-  let offset = 500;
-    while (offset < 1100) {
-        console.log('offset:', offset)
-        await cover_playlist(t, offset)
-        offset += 50
-    }
+  // const t = 'BQDhwxSF6e7MUn7mOPxvZafj0vPkkBPKe7ee8Xh-BPCU9eMLnNyIRs1ZSVRsW0HPJEFY7BKTwwdV89VkSS-UiAUzFRjk8mtKvPmqonKzNsB6XhDe6_H-Q3AiNvNNfcxfFYx3pu0iI3z9tY6VWK8jz94HP-x_g-yjpREmGrsWsUHiQCxxYdFt9cXyhHfpkv7lqhbQuoeXccJeWcYREyFCKjHLzqzFOrrkOLhCXgjLyb8l23_QXl6VPzZ0zm6uAqtEUPm_aEEE3V3scccTt-I';
+  // let offset = 500;
+  //   while (offset < 1100) {
+  //       console.log('offset:', offset)
+  //       await cover_playlist(t, offset)
+  //       offset += 50
+  //   }
 })()

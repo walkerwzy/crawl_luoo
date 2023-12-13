@@ -14,8 +14,8 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-var client_id = '574961985a664031a4d935d187430793'; // your clientId
-var client_secret = '35306bd544d34ec4840574956d9b402d'; // Your secret
+var client_id = ''; // your clientId
+var client_secret = ''; // Your secret
 var redirect_uri = 'http://localhost:3333/callback'; // Your redirect uri
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -43,11 +43,13 @@ function extractToken (req) {
   return null;
 }
 
-app.get('/login', function(req, res) {
+app.get('/login', async function(req, res) {
 
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
 // your application requests authorization
+
+  await get_credential();
 
   // https://developer.spotify.com/documentation/web-api/concepts/scopes
   var scope = 'user-read-private playlist-read-private playlist-modify-public playlist-modify-private ugc-image-upload';
@@ -61,10 +63,12 @@ app.get('/login', function(req, res) {
     }));
 });
 
-app.get('/callback', function(req, res) {
+app.get('/callback', async function(req, res) {
 
   // your application requests refresh and access tokens
   // after checking the state parameter
+
+  await get_credential();
 
   var code = req.query.code || null;
   var state = req.query.state || null;
@@ -142,7 +146,9 @@ app.get('/playlist/create/:uid/:from/:to', async (req, res) => {
   res.send("ok")
 });
 
-app.get('/refresh_token', function(req, res) {
+app.get('/refresh_token', async function(req, res) {
+
+  await get_credential();
 
   var refresh_token = req.query.refresh_token;
   var authOptions = {
@@ -171,6 +177,20 @@ app.get('/refresh_token', function(req, res) {
     }
   });
 });
+
+const get_credential = async () => {
+  const db = 'spotify.key';
+  try {
+    await fs.promises.access(db, fs.constants.R_OK | fs.constants.W_OK);
+    const text = await fs.promises.readFile(db, { encoding: 'utf-8' })
+    const data = JSON.parse(text)
+    console.log(data);
+    client_id = data.client_id
+    client_secret = data.client_secret
+  } catch (e) {
+    console.error(e);
+  }
+}
 
 
 console.log('Listening on 3333');
